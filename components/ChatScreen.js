@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { useAuthState } from "react-firebase-hooks/auth";
 import styled from "styled-components";
@@ -19,6 +19,9 @@ function ChatScreen({ chat, messages }) {
 
   //useState to enable us get the chat functionality
   const [input, setInput] = useState("");
+
+  //helper function to assist anytime we send a message we scroll to the bottom of the chat
+  const endOfMessagesRef = useRef(null);
 
   //enables routing between pages
   const router = useRouter();
@@ -60,6 +63,14 @@ function ChatScreen({ chat, messages }) {
     }
   };
 
+  //function to assist in scrolling to the bottom of chat anytime we send a message
+  const scrollToBottom = () => {
+    endOfMessagesRef.current.scrollIntoView({
+      behaviour: "smooth",
+      block: "start",
+    });
+  }
+
   const sendMessage = (e) => {
     e.preventDefault();
 
@@ -79,6 +90,7 @@ function ChatScreen({ chat, messages }) {
     });
 
     setInput("");
+    scrollToBottom();
   };
 
   const recipient = recipientSnapshot?.docs?.[0].data();
@@ -123,7 +135,7 @@ function ChatScreen({ chat, messages }) {
       <MessageContainer>
         {/* show messages */}
         {showMessages()}
-        <EndOfMessage />
+        <EndOfMessage ref={endOfMessagesRef}/>
       </MessageContainer>
 
       <InputContainer>
@@ -169,7 +181,9 @@ const HeaderInformation = styled.div`
   }
 `;
 
-const EndOfMessage = styled.div``;
+const EndOfMessage = styled.div`
+   margin-bottom: 50px;
+`;
 
 const HeaderIcons = styled.div``;
 
